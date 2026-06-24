@@ -1,0 +1,30 @@
+{
+  "name": "my-svelte-counter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run gdoc && vite --open",
+    "build": "npm run gdoc && vite build",
+    "preview": "vite preview",
+    "gdoc": "node tasks/fetch-gdoc.js"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^4.0.4",
+    "@tailwindcss/cli": "^4.1.10",
+    "@tailwindcss/typography": "^0.5.15",
+    "@tailwindcss/vite": "^4.1.10",
+    "svelte": "^5.38.6",
+    "tailwindcss": "^4.1.10",
+    "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "@rollup/plugin-dsv": "^3.0.5",
+    "@types/d3": "^7.4.3",
+    "d3": "^7.9.0",
+    "gsap": "^3.12.5",
+    "p5": "^2.1.2",
+    "three": "^0.169.0",
+    "vite-plugin-svgstring": "^1.0.0"
+  }
+}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upward Floating Grey Divs</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        /* 1200px Fixed width container */
+        #canvas-container {
+            position: relative;
+            width: 1200px;
+            height: 800px;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Minimal flat grey div elements */
+        .floating-item {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #64748b;
+            border-radius: 4px;
+            will-change: transform;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        const container = document.getElementById('canvas-container');
+        
+        // --- Configuration ---
+        const TOTAL_DIVS = 168;
+        const DIV_SIZE = 40; 
+        const CONTAINER_WIDTH = 1200;
+        const CONTAINER_HEIGHT = 800;
+        
+        const COLLISION_RADIUS = DIV_SIZE * 0.707; 
+        const MIN_DIST = COLLISION_RADIUS * 2;
+
+        const items = [];
+
+        // --- Even Distribution Grid Parameters ---
+        const COLS = 14;
+        const ROWS = 12;
+        const CELL_WIDTH = CONTAINER_WIDTH / COLS;
+        const CELL_HEIGHT = CONTAINER_HEIGHT / ROWS;
+
+        // --- Initialization ---
+        for (let i = 0; i < TOTAL_DIVS; i++) {
+            const col = i % COLS;
+            const row = Math.floor(i / COLS);
+
+            // Spread out evenly across the screen initially
+            const startX = (col * CELL_WIDTH) + (CELL_WIDTH / 2) + (Math.random() - 0.5) * 10;
+            const startY = (row * CELL_HEIGHT) + (CELL_HEIGHT / 2) + (Math.random() - 0.5) * 10;
+
+            const el = document.createElement('div');
+            el.className = 'floating-item';
+            container.appendChild(el);
+
+            const item = {
+                element: el,
+                x: startX,
+                y: startY,
+                vx: (Math.random() - 0.5) * 0.2,       // Subtle side-to-side sway
+                vy: -(Math.random() * 0.4 + 0.4),      // Constant upward velocity (negative Y)
+                rotation: Math.random() * 360
+            };
+
+            items.push(item);
+        }
+
+        // --- Physics & Animation Loop ---
+        function updateAnimation() {
+            
+            // 1. Resolve Collisions (Push apart overlapping pairs)
+            for (let i = 0; i < items.length; i++) {
+                for (let j = i + 1; j < items.length; j++) {
+                    const itemA = items[i];
+                    const itemB = items[j];
+
+                    const dx = itemB.x - itemA.x;
+                    const dy = itemB.y - itemA.y;
+                    const distance = Math.hypot(dx, dy);
+
+                    if (distance < MIN_DIST) {
+                        const overlap = MIN_DIST - distance;
+                        const nx = (dx / (distance || 1)) * overlap * 0.5;
+                        const ny = (dy / (distance || 1)) * overlap * 0.5;
+
+                        itemA.x -= nx;
+                        itemA.y -= ny;
+                        itemB.x += nx;
+                        itemB.y += ny;
+
+                        // Soft directional adjustment on collision
+                        itemA.vx -= nx * 0.002;
+                        itemB.vx += nx * 0.002;
+                    }
+                }
+            }
+
+            // 2. Move items and wrap around at boundaries
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+
+                item.x += item.vx;
+                item.y += item.vy;
+
+                // Horizontal screen boundary restrictions (Bounce off walls)
+                if (item.x < COLLISION_RADIUS) {
+                    item.x = COLLISION_RADIUS;
+                    item.vx *= -1;
+                } else if (item.x > CONTAINER_WIDTH - COLLISION_RADIUS) {
+                    item.x = CONTAINER_WIDTH - COLLISION_RADIUS;
+                    item.vx *= -1;
+                }
+
+                // Vertical screen boundary handling (Wrap around to bottom)
+                if (item.y < -COLLISION_RADIUS) {
+                    // Fully exited the top, reposition perfectly to the bottom edge
+                    item.y = CONTAINER_HEIGHT + COLLISION_RADIUS;
+                    // Randomize horizontal placement on reappear to look dynamic
+                    item.x = Math.random() * (CONTAINER_WIDTH - DIV_SIZE) + COLLISION_RADIUS;
+                }
+
+                // Render calculations
+                const renderX = item.x - DIV_SIZE / 2;
+                const renderY = item.y - DIV_SIZE / 2;
+                
+                item.element.style.transform = `translate3d(${renderX}px, ${renderY}px, 0) rotate(${item.rotation}deg)`;
+            }
+
+            requestAnimationFrame(updateAnimation);
+        }
+
+        requestAnimationFrame(updateAnimation);
+    </script>
+</body>
+</html>
