@@ -18,7 +18,7 @@
   let isMobile = false;
   $: isMobile = containerWidth < 600;
   
-  $: collisionRadius = isMobile ? 55 : 45; 
+  $: collisionRadius = isMobile ? 60 : 50; 
   $: minDist = collisionRadius * 2;
   
   const FADE_ZONE_HEIGHT = 180; 
@@ -125,7 +125,7 @@
 
     function initializePositions() {
       let tempItems = [];
-      const stepY = isMobile ? 14 : 18;
+      const stepY = isMobile ? 26 : 18;
 
       for (let i = 0; i < TOTAL_DIVS; i++) {
         const record = sortedData[i] || {
@@ -309,7 +309,7 @@
 
   .flowerCtn {
     position: relative;
-    /* background-color: #4a4644; */
+    /* background-color: #4a4644;  */
     overflow: hidden;
     width: 100%;
     height: 300vh;
